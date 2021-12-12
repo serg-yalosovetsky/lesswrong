@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:html/parser.dart';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
 Future fetchData() async {
   var _url = 'https://www.lesswrong.com/library';
-  _url = 'https://github.com';
+  // _url = 'https://github.com';
   var header = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
@@ -24,6 +25,74 @@ Future fetchData() async {
 
     // If the server did return a 200 OK response,
     // then parse the JSON.
+    var document = parse(response.body);
+    String get_text(document, class_name, number){
+      String ret = '';
+      try{
+        ret = document.getElementsByClassName(class_name)[number].innerHtml;
+      }
+      catch(e){
+        ret = '';
+      }
+      return ret;
+    }
+
+    int get_length(document, class_name){
+      return document.getElementsByClassName(class_name).length;
+    }
+
+    List list_title = [
+      'TabNavigationItem-navText',
+      'TabNavigationSubItem-root',
+      'SectionTitle-title',
+      'Typography-root',
+      'Typography-title',
+      'Typography-display1',
+      'CollectionsCard-title',
+      'CollectionsCard-mergeTitle',
+      'UsersNameDisplay-userName',
+      'BigCollectionsCard-text',
+      'Typography-body2',
+      'BigCollectionsCard-title',
+      'SequencesGridItem-title',
+      'LinkCard-background',
+    ];
+
+    Map map_titles = {
+      'menu_class': 'TabNavigationItem-navText',
+      'sub_menu_class': 'TabNavigationSubItem-root',
+      'big_title': 'SectionTitle-title',
+      'small_title': 'SequencesGridItem-title',
+    };
+    Map map_values = {};
+
+    String menu_class = 'TabNavigationItem-navText';
+    String sub_menu_class = 'TabNavigationSubItem-root';
+    String big_title = 'SectionTitle-title';
+    String small_title = 'SequencesGridItem-title';
+
+    // for (int i=0; i < map_titles.length - 1; i++)
+    for (var _class in map_titles.keys) {
+      // List<String> _temp = [];
+      map_values[_class] = <String>[];
+      for (int i = 0; i < get_length(document, map_titles[_class]) - 1; i++) {
+        // print("${_class} $i  ${get_text(document, map_titles[_class], i)}");
+        map_values[_class].add(get_text(document, map_titles[_class], i));
+            // .add(get_text(document, map_titles[_class], i));
+      }
+      // map_values[_class] = List;
+
+    }
+    print(map_values);
+    // Typography-root Typography-display1 SectionTitle-title
+    // Typography-root Typography-title BigCollectionsCard-title
+    // SequencesGridItem-root LinkCard-root
+    // Typography-root Typography-title CollectionsCard-title CollectionsCard-mergeTitle
+    // Typography-root Typography-body2 BigCollectionsCard-text
+
+
+    var doc_str = {'menu': ['', ''] };
+
     return response.body;
   } else {
     // If the server did not return a 200 OK response,
